@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日一图 | 视觉盛宴</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: rgba(30, 41, 59, 0.7);
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e1;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #60a5fa;
+            --border-color: rgba(148, 163, 184, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --theme-icon-moon: #f0f8ff;
+            --theme-icon-sun: #ffa500;
+            --theme-icon-bg: rgba(56, 189, 248, 0.2);
+        }
+
+        .light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #e2e8f0;
+            --bg-tertiary: rgba(226, 232, 240, 0.7);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-primary: #0ea5e9;
+            --accent-secondary: #2563eb;
+            --border-color: rgba(15, 23, 42, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --theme-icon-moon: #475569;
+            --theme-icon-sun: #f59e0b;
+            --theme-icon-bg: rgba(14, 165, 233, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-primary);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 30px var(--shadow-color);
+            z-index: 100;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .nav-container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+        
+        .logo-icon {
+            font-size: 24px;
+        }
+
+        /* 主题状态提示 */
+        .theme-indicator {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        #theme-toggle:hover .theme-indicator {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        
+        .nav-buttons::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .nav-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            padding-left: 16px;
+            border: 1px solid transparent;
+        }
+        
+        .nav-btn:hover {
+            background: var(--theme-icon-bg);
+            color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+        
+        .nav-btn.active {
+            background: var(--theme-icon-bg);
+            color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-primary);
+        }
+
+        #theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #theme-toggle:hover {
+            background: var(--theme-icon-bg);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
+        #theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        #theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            transition: all 0.3s ease;
+            color: inherit;
+        }
+       
+        /* 主内容区样式 */
+        main {
+            padding-top: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .image-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 75vh;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 50px -12px var(--shadow-color);
+            margin-bottom: 30px;
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .image-container img, .image-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(56, 189, 248, 0.2);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+        
+        .error-message {
+            color: #f87171;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            max-width: 80%;
+        }
+        
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px auto;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #0d6efd, #0a58ca);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 100px;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(145deg, #0b5ed7, #094ab2);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .control-btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px rgba(0, 123, 255, 0.2);
+        }
+
+        .control-btn:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+            transform: translateY(0);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            .nav-container {
+                padding: 0 15px;
+            }
+            
+            .nav-buttons {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                height: 80px;
+                padding: 0 15px;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .logo {
+                padding-top: 16px;
+                font-size: 20px;
+                justify-content: center;
+            }
+            
+            .nav-buttons {
+                justify-content: space-between;
+                gap: 6px;
+                padding: 4px;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            
+            .nav-buttons::-webkit-scrollbar {
+                display: none;
+            }
+            
+            .nav-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+                min-width: 70px;
+                flex-shrink: 0;
+            }
+            
+            #theme-toggle {
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+            }
+            
+            #theme-toggle svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            main {
+                padding-top: 90px;
+            }
+
+            .image-container {
+                height: 60vh;
+                width: 95%;
+                margin-bottom: 25px;
+            }
+
+            .control-buttons {
+                gap: 10px;
+                margin: 20px auto;
+                padding: 0 15px;
+            }
+
+            .control-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                min-width: 80px;
+                letter-spacing: 0.2px;
+            }
+            
+            .control-btn span:first-child {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            nav {
+                height: 80px;
+                padding: 0 10px;
+            }
+            
+            .nav-container {
+                gap: 8px;
+            }
+            
+            .logo {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                font-size: 20px;
+            }
+            
+            .nav-buttons {
+                gap: 4px;
+                padding: 0 5px;
+            }
+            
+            .nav-btn {
+                padding: 5px 8px;
+                font-size: 11px;
+                min-width: 60px;
+                border-radius: 15px;
+            }
+            
+            #theme-toggle {
+                width: 28px;
+                height: 28px;
+            }
+            
+            #theme-toggle svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            main {
+                padding-top: 100px;
+            }
+            
+            .image-container {
+                height: 55vh;
+                width: 98%;
+                margin-bottom: 20px;
+                border-radius: 12px;
+            }
+            
+            .control-buttons {
+                gap: 8px;
+                margin: 15px auto;
+                padding: 0 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .control-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+                min-width: 70px;
+                border-radius: 6px;
+            }
+            
+            .control-btn span:first-child {
+                font-size: 14px;
+            }
+            
+            .loading-text {
+                font-size: 16px;
+                text-align: center;
+            }
+            
+            .error-message {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            nav {
+                height: 85px;
+                padding: 0 8px;
+            }
+            
+            .logo {
+                font-size: 16px;
+            }
+            
+            .nav-buttons {
+                gap: 3px;
+                padding: 0;
+            }
+            
+            .nav-btn {
+                padding: 4px 6px;
+                font-size: 10px;
+                min-width: 50px;
+                border-radius: 12px;
+            }
+            
+            #theme-toggle {
+                width: 26px;
+                height: 26px;
+            }
+
+            main {
+                padding-top: 105px;
+            }
+            
+            .image-container {
+                height: 50vh;
+                width: 100%;
+                margin-bottom: 15px;
+                border-radius: 8px;
+            }
+            
+            .control-buttons {
+                gap: 6px;
+                margin: 10px auto;
+                padding: 0 8px;
+            }
+            
+            .control-btn {
+                padding: 5px 8px;
+                font-size: 10px;
+                min-width: 60px;
+                border-radius: 5px;
+                flex: 1;
+                max-width: 80px;
+            }
+            
+            .control-btn span:first-child {
+                font-size: 12px;
+            }
+            
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 4px;
+            }
+            
+            .loading-text {
+                font-size: 14px;
+            }
+            
+            .error-message {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+        
+        /* 横屏适配 */
+        @media (max-width: 768px) and (orientation: landscape) {
+            nav {
+                height: 60px;
+            }
+            
+            .nav-container {
+                flex-direction: row;
+                gap: 15px;
+            }
+            
+            .logo {
+                justify-content: flex-start;
+                flex-shrink: 0;
+            }
+            
+            .nav-buttons {
+                flex: 1;
+                justify-content: center;
+            }
+            
+            main {
+                padding-top: 80px;
+            }
+            
+            .image-container {
+                height: 70vh;
+            }
+        }
+        
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-btn:hover,
+            .control-btn:hover,
+            #theme-toggle:hover {
+                transform: none;
+            }
+            
+            .nav-btn:active,
+            .control-btn:active,
+            #theme-toggle:active {
+                transform: scale(0.95);
+                transition: transform 0.1s ease;
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🌄</span>
+                <span>每日一图</span>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn active" data-type="bing">每日必应</button>
+                <button class="nav-btn" data-type="fengjing">随机风景</button>
+                <button class="nav-btn" data-type="erciyuan">随机二次元</button>
+                <button class="nav-btn" data-type="moez">随机萌版</button>
+                <button class="nav-btn" data-type="ai">随机AI图</button>
+                <button class="nav-btn" data-type="fj">AI风景图</button>
+                <button class="nav-btn" data-type="ysz">原神图</button>
+                <button class="nav-btn" data-type="acg">ACG动图</button>
+                <button id="theme-toggle" title="切换主题">
+                    <div class="theme-indicator"></div>
+                    <!-- 图标将通过JavaScript动态设置 -->
+                </button>
+            </div>
+
+        </div>
+    </nav>
+    
+    <!-- 主内容区 -->
+    <main>
+        <div class="image-container">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div class="loading-text">正在加载每日美图...</div>
+            </div>
+            <!-- 图片或视频会动态加载到这里 -->
+        </div>
+        
+        <div class="control-buttons">
+            <button class="control-btn" id="prevBtn">
+                <span>⬅️</span>
+                <span>上一张</span>
+            </button>
+            <button class="control-btn" id="refreshBtn">
+                <span>🔄</span>
+                <span>换一张</span>
+            </button>
+            <button class="control-btn" id="nextBtn">
+                <span>➡️</span>
+                <span>下一张</span>
+            </button>
+            <button class="control-btn" id="fullscreenBtn">
+                <span>🔍</span>
+                <span>全屏</span>
+            </button>
+        </div>
+    </main>
+    
+    <script>
+        // API映射
+        const apiMap = {
+            bing: "https://api.dujin.org/bing/1920.php",
+            fengjing: "https://tu.ltyuanfang.cn/api/fengjing.php",
+            erciyuan: "https://t.alcy.cc/ycy",
+            moez: "https://t.alcy.cc/moez",
+            ai: "https://t.alcy.cc/ai",
+            fj: "https://t.alcy.cc/fj",
+            ysz: "https://t.alcy.cc/ysz",
+            acg: "https://t.alcy.cc/acg" // 视频文件
+        };
+        
+        // DOM元素
+        const navButtons = document.querySelectorAll('.nav-buttons .nav-btn');
+        const imageContainer = document.querySelector('.image-container');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        
+        // 当前选中的类型
+        let currentType = 'bing';
+        const themeToggle = document.getElementById('theme-toggle');
+
+        const sunIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22"/>
+            </svg>
+        `;
+
+        const moonIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        `;
+
+        function setTheme(theme) {
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            if (theme === 'dark') {
+                body.classList.remove('light-mode');
+                themeToggle.innerHTML = moonIcon;
+                localStorage.setItem('theme', 'dark');
+                // 添加主题切换动画
+                body.style.transition = 'background-color 0.5s ease, color 0.5s ease';
+            } else {
+                body.classList.add('light-mode');
+                themeToggle.innerHTML = sunIcon;
+                localStorage.setItem('theme', 'light');
+                // 添加主题切换动画
+                body.style.transition = 'background-color 0.5s ease, color 0.5s ease';
+            }
+            
+            // 添加切换反馈动画
+            themeToggle.style.transform = 'rotate(180deg) scale(1.2)';
+            setTimeout(() => {
+                themeToggle.style.transform = '';
+            }, 300);
+        }
+
+        // 检测系统主题偏好
+        function getSystemTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        }
+
+        // 监听系统主题变化
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            mediaQuery.addEventListener('change', (e) => {
+                // 只有在用户没有手动设置主题时才自动切换
+                if (!localStorage.getItem('theme-manual')) {
+                    setTheme(e.matches ? 'dark' : 'light');
+                }
+            });
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem('theme') || getSystemTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            // 标记为手动设置
+            localStorage.setItem('theme-manual', 'true');
+        });
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme') || getSystemTheme();
+        setTheme(savedTheme);
+        // 图片历史记录
+        let imageHistory = [];
+        let currentImageIndex = -1;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', () => {
+            loadImage(currentType);
+            
+            // 为导航按钮添加事件监听
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // 更新活动按钮
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // 加载新类型图片
+                    currentType = button.dataset.type;
+                    loadImage(currentType);
+                });
+            });
+            
+            // 为刷新按钮添加事件监听
+            refreshBtn.addEventListener('click', () => {
+                loadImage(currentType);
+            });
+            
+            // 为上一张按钮添加事件监听
+            prevBtn.addEventListener('click', () => {
+                showPreviousImage();
+            });
+            
+            // 为下一张按钮添加事件监听
+            nextBtn.addEventListener('click', () => {
+                showNextImage();
+            });
+            
+            // 为全屏按钮添加事件监听
+            fullscreenBtn.addEventListener('click', () => {
+                toggleFullscreen();
+            });
+            
+            // 更新按钮状态
+            updateButtonStates();
+        });
+        
+        // 加载图片函数
+        function loadImage(type) {
+            // 显示加载状态
+            imageContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">正在加载${getTypeName(type)}图片...</div>
+                </div>
+            `;
+            
+            // 生成新的图片URL
+            const imageUrl = apiMap[type] + '?t=' + new Date().getTime();
+            
+            // 创建媒体元素
+            const mediaElement = type === 'acg' ? 
+                createVideoElement(imageUrl) : 
+                createImageElement(imageUrl);
+                
+            // 添加到容器
+            imageContainer.appendChild(mediaElement);
+            
+            // 添加到历史记录
+            addToHistory(imageUrl, type);
+        }
+        
+        // 添加到历史记录
+        function addToHistory(url, type) {
+            // 如果当前不在历史记录末尾，删除后面的记录
+            if (currentImageIndex < imageHistory.length - 1) {
+                imageHistory = imageHistory.slice(0, currentImageIndex + 1);
+            }
+            
+            // 添加新记录
+            imageHistory.push({ url, type });
+            currentImageIndex = imageHistory.length - 1;
+            
+            // 限制历史记录长度
+            if (imageHistory.length > 50) {
+                imageHistory.shift();
+                currentImageIndex--;
+            }
+            
+            updateButtonStates();
+        }
+        
+        // 显示上一张图片
+        function showPreviousImage() {
+            if (currentImageIndex > 0) {
+                currentImageIndex--;
+                const historyItem = imageHistory[currentImageIndex];
+                loadImageFromHistory(historyItem.url, historyItem.type);
+                updateButtonStates();
+            }
+        }
+        
+        // 显示下一张图片
+        function showNextImage() {
+            if (currentImageIndex < imageHistory.length - 1) {
+                currentImageIndex++;
+                const historyItem = imageHistory[currentImageIndex];
+                loadImageFromHistory(historyItem.url, historyItem.type);
+                updateButtonStates();
+            }
+        }
+        
+        // 从历史记录加载图片
+        function loadImageFromHistory(url, type) {
+            // 显示加载状态
+            imageContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">正在加载${getTypeName(type)}图片...</div>
+                </div>
+            `;
+            
+            // 创建媒体元素
+            const mediaElement = type === 'acg' ? 
+                createVideoElement(url) : 
+                createImageElement(url);
+                
+            // 添加到容器
+            imageContainer.appendChild(mediaElement);
+        }
+        
+        // 切换全屏
+        function toggleFullscreen() {
+            const currentMedia = imageContainer.querySelector('img, video');
+            if (!currentMedia) return;
+            
+            if (!document.fullscreenElement) {
+                // 进入全屏
+                if (imageContainer.requestFullscreen) {
+                    imageContainer.requestFullscreen();
+                } else if (imageContainer.webkitRequestFullscreen) {
+                    imageContainer.webkitRequestFullscreen();
+                } else if (imageContainer.msRequestFullscreen) {
+                    imageContainer.msRequestFullscreen();
+                }
+            } else {
+                // 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        // 更新按钮状态
+        function updateButtonStates() {
+            prevBtn.disabled = currentImageIndex <= 0;
+            nextBtn.disabled = currentImageIndex >= imageHistory.length - 1;
+            
+            // 更新按钮样式
+            if (prevBtn.disabled) {
+                prevBtn.style.opacity = '0.5';
+                prevBtn.style.cursor = 'not-allowed';
+            } else {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.cursor = 'pointer';
+            }
+            
+            if (nextBtn.disabled) {
+                nextBtn.style.opacity = '0.5';
+                nextBtn.style.cursor = 'not-allowed';
+            } else {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.cursor = 'pointer';
+            }
+        }
+        
+        // 创建图片元素
+        function createImageElement(src) {
+            const img = new Image();
+            img.src = src;
+            
+            img.onload = () => {
+                // 图片加载成功
+                document.querySelector('.loading').remove();
+                img.classList.add('fade-in');
+            };
+            
+            img.onerror = () => {
+                // 图片加载失败
+                imageContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>图片加载失败，请稍后再试</p>
+                        <p>您可以尝试点击导航栏切换其他类型</p>
+                    </div>
+                `;
+            };
+            
+            return img;
+        }
+        
+        // 创建视频元素（用于ACG动图）
+        function createVideoElement(src) {
+            const video = document.createElement('video');
+            video.src = src;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true;
+            video.playsInline = true;
+            video.controls = false;
+            
+            video.onloadeddata = () => {
+                // 视频加载成功
+                document.querySelector('.loading').remove();
+                video.classList.add('fade-in');
+            };
+            
+            video.onerror = () => {
+                // 视频加载失败
+                imageContainer.innerHTML = `
+                    <div class="error-message">
+                        <p>视频加载失败，请稍后再试</p>
+                        <p>您可以尝试点击导航栏切换其他类型</p>
+                    </div>
+                `;
+            };
+            
+            return video;
+        }
+        
+        // 获取类型名称
+        function getTypeName(type) {
+            const names = {
+                bing: '每日必应',
+                fengjing: '随机风景',
+                erciyuan: '随机二次元',
+                moez: '随机萌版',
+                ai: '随机AI',
+                fj: 'AI风景',
+                ysz: '原神',
+                acg: 'ACG动图'
+            };
+            return names[type] || '精美';
+        }
+    </script>
+</body>
+</html>
